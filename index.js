@@ -142,6 +142,21 @@ app.get('/api/posts', async (req, res) => {
     res.status(200).send(posts);
 });
 
+app.get('/api/posts/:id', async (req, res) => {
+    const id = Number(req.params.id);
+    const post = await prisma.posts.findUnique({
+        where: {
+            id: id,
+        }
+    });
+    if (post == undefined) {
+        res.status(404).send("<h1>ERROR</h1>");
+    }
+    else {
+        res.status(200).send(post);
+    }
+});
+
 app.post('/api/posts', async (req, res) => {
     const newPost = req.body;
     const check = await prisma.users.findUnique({
@@ -158,6 +173,28 @@ app.post('/api/posts', async (req, res) => {
     }
 });
 
+app.put('/api/posts/:id', async (req, res) => {
+    const id = Number(req.params.id);
+    const newPost = req.body;
+    const check = await prisma.users.findUnique({
+        where: {
+            id: Number(newPost.users_id),
+        }
+    });
+    if (check == undefined) {
+        res.status(404).send("<h1>ERROR<h1>");
+    }
+    else {
+        const updatedPost = await prisma.posts.update({
+            where: {
+                id: id,
+            },
+            data: newPost,
+        });
+        res.status(200).send(updatedPost);
+    }
+});
+
 app.delete('/api/posts/:id', async (req, res) => {
     const id = Number(req.params.id);
     const post = await prisma.posts.delete({
@@ -166,10 +203,10 @@ app.delete('/api/posts/:id', async (req, res) => {
         }
     });
     res.status(200).send(post);
-})
+});
 
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
-})
+});
 
